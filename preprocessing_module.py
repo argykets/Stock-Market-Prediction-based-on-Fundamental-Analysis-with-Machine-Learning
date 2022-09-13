@@ -12,11 +12,13 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import portfolio_optimization_module
 
 def preprocessing(data):
-    # Fill NaN with zeros and reset index
+    # Fill NaNs and infinities with zeros and reset index
     data.fillna(0, inplace=True)
+    data.replace([np.inf, -np.inf], 0, inplace=True)
     data.reset_index(drop=True, inplace=True)
 
     # Polynomial features for close price
+    """
     poly = PolynomialFeatures(4)
     numerical_features = data['Close'].values
     numerical_features = numerical_features.reshape(-1, 1)
@@ -28,7 +30,7 @@ def preprocessing(data):
     polynomial_features.drop(columns=['poly1', 'poly2'], inplace=True)
 
     data = pd.concat([data, polynomial_features], axis=1, ignore_index=False)
-
+    """
     # Drop duplicate rows
     data.drop_duplicates(inplace=True)
     data = data[data['date'] != 0]
@@ -55,25 +57,20 @@ def preprocessing(data):
 
     # Select target value --- simple returns
     y_train = train_data['log returns'].values
-    y_train_class = train_data['log returns trend'].values
-    X_train = train_data.drop(columns=['simple returns', 'log returns', 'log returns trend'])
+    X_train = train_data.drop(columns=['log returns', 'Close'])
 
     # Get feature names
     columns = X_train.columns.values.tolist()
     X_train = X_train.values
 
     y_test = test_data['log returns'].values
-    y_test_class = test_data['log returns trend'].values
-    X_test = test_data.drop(columns=['simple returns', 'log returns', 'log returns trend']).values
+    X_test = test_data.drop(columns=['log returns', 'Close']).values
 
     y_val = val_data['log returns'].values
-    y_val_class = val_data['log returns trend'].values
-    X_val = val_data.drop(columns=['simple returns', 'log returns', 'log returns trend']).values
+    X_val = val_data.drop(columns=['log returns', 'Close']).values
 
     y_train = np.asarray(y_train).astype('float32').reshape((-1, 1))
     y_test = np.asarray(y_test).astype('float32').reshape((-1, 1))
-    y_train_class = np.asarray(y_train_class).astype('float32').reshape((-1, 1))
-    y_test_class = np.asarray(y_test_class).astype('float32').reshape((-1, 1))
 
     # Standardization
     scaler = StandardScaler()
@@ -81,14 +78,12 @@ def preprocessing(data):
     X_val = scaler.transform(X_val)
     X_test = scaler.transform(X_test)
 
-    return X_train, y_train, X_test, y_test, y_train_class, y_test_class, columns, test_data_with_dates, X_val, y_val,\
-           y_val_class, validation_data_with_dates
+    return X_train, y_train, X_test, y_test, columns, test_data_with_dates, X_val, y_val, validation_data_with_dates
 
 
 def grid_construction():
-    grid = {'batch_size': [60, 80, 100],
-            'epochs': [10, 20, 30],
-            'loss': ['mse', 'mae', Huber(), CosineSimilarity(), MeanSquaredLogarithmicError()]}
+    grid = {'batch_size': [32, 64, 128],
+            'loss': ['mse', 'mae', Huber()]}
 
     return grid
 

@@ -6,9 +6,9 @@ import pandas as pd
 import numpy as np
 
 
-def featureEngineering(tickers):
+def featureEngineering(tickers, use_macros):
     # Import fundamental and price data and construct features
-    data = pd.DataFrame()
+    dataset = pd.DataFrame()
     for ticker in tickers:
         # Import fundamental data
         with open(f'data/{ticker}_income_statement.json') as json_file:
@@ -31,21 +31,29 @@ def featureEngineering(tickers):
             netIncome.append(int(quarter['netIncome']))
             dates.append(quarter['fiscalDateEnding'])
 
-        ROA = pd.DataFrame(netIncome, columns=['netIncome'])
+        data = pd.DataFrame(netIncome, columns=['netIncome'])
 
         # Select total assets from balance sheet
         quarterlyBS = balance_sheet['quarterlyReports']
         totalAssets = []
+        commonSharesOutstanding = []
         for quarter in quarterlyBS:
+            if quarter['commonStockSharesOutstanding'] == 'None':
+                commonSharesOutstanding.append(0)
+            else:
+                commonSharesOutstanding.append(quarter['commonStockSharesOutstanding'])
+
             if quarter['totalAssets'] == 'None':
                 totalAssets.append(0)
             else:
                 totalAssets.append(int(quarter['totalAssets']))
 
-        ROA['totalAssets'] = totalAssets
+        data['totalAssets'] = totalAssets
+        data['commonSharesOutstanding'] = np.array(commonSharesOutstanding, dtype='float64')
+
 
         # Compute return on assets
-        ROA['ReturnOnAssets'] = ROA['netIncome'] / ROA['totalAssets']
+        data['ReturnOnAssets'] = data['netIncome'] / data['totalAssets']
 
         # FEATURE 2 - Debt Ratio = Total Liabilities / Total Assets
         # -------------------------------------------------------------
@@ -56,22 +64,27 @@ def featureEngineering(tickers):
             else:
                 totalLiabilities.append(int(quarter['totalLiabilities']))
 
-        DR = pd.DataFrame()
-        DR['totalLiabilities'] = totalLiabilities
-        DR['totalAssets'] = totalAssets
+        data['totalLiabilities'] = totalLiabilities
 
         # Compute Debt Ratio
-        DR['DebtRatio'] = DR['totalLiabilities'] / DR['totalAssets']
+        data['DebtRatio'] = data['totalLiabilities'] / data['totalAssets']
 
         # FEATURE 3 - Current Ratio = Current Debt / Current Assets
         # -------------------------------------------------------------
         currentDebt = []
+        currentLiabilities = []
         for quarter in quarterlyBS:
+            if quarter['totalCurrentLiabilities'] == 'None':
+                currentLiabilities.append(0)
+            else:
+                currentLiabilities.append(quarter['totalCurrentLiabilities'])
+
             if quarter['currentDebt'] == 'None':
                 currentDebt.append(0)
             else:
-                currentDebt.append(int(quarter['currentDebt']))
+                currentDebt.append(quarter['currentDebt'])
 
+        data['totalCurrentLiabilities'] = np.array(currentLiabilities, dtype='float64')
         currentAssets = []
         for quarter in quarterlyBS:
             if quarter['totalCurrentAssets'] == 'None':
@@ -79,12 +92,11 @@ def featureEngineering(tickers):
             else:
                 currentAssets.append(int(quarter['totalCurrentAssets']))
 
-        CR = pd.DataFrame()
-        CR['currentDebt'] = currentDebt
-        CR['currentAssets'] = currentAssets
+        data['currentDebt'] = np.array(currentDebt, dtype='float64')
+        data['currentAssets'] = np.array(currentAssets, dtype='float64')
 
         # Compute Current Ratio
-        CR['currentRatio'] = CR['currentDebt'] / CR['currentAssets']
+        data['currentRatio'] = data['currentDebt'] / data['currentAssets']
 
         # FEATURE 4 - Gross Margin = Revenue - Cost of Goods sold / Revenue
         # -------------------------------------------------------------
@@ -102,89 +114,98 @@ def featureEngineering(tickers):
             else:
                 costOfGoodsSold.append(int(quarter['costofGoodsAndServicesSold']))
 
-        GM = pd.DataFrame()
-        GM['revenue'] = revenue
-        GM['costOfGoodsSold'] = costOfGoodsSold
-
-        # Add fundamental data
-        # Revenue
-        FD = pd.DataFrame()
-        FD['revenue'] = revenue
+        data['revenue'] = revenue
+        data['costOfGoodsSold'] = costOfGoodsSold
 
         # Expenses
         expenses = []
         for quarter in quarterlyIS:
-            expenses.append(quarter['operatingExpenses'])
-        FD['expenses'] = expenses
+            if quarter['operatingExpenses'] == 'None':
+                expenses.append(0)
+            else:
+                expenses.append(quarter['operatingExpenses'])
+        data['expenses'] = np.array(expenses, dtype='float64')
 
         # Interests
         interests = []
         for quarter in quarterlyIS:
-            interests.append(quarter['interestIncome'])
-        FD['interests'] = interests
-        FD['interests'].replace('None', 0, inplace=True)
-
-        # Net income
-        FD['net_income'] = netIncome
+            if quarter['interestIncome'] == 'None':
+                interests.append(0)
+            else:
+                interests.append(quarter['interestIncome'])
+        data['interests'] = np.array(interests, dtype='float64')
+        data['interests'].replace('None', 0, inplace=True)
 
         # Gross Profit
-        FD['gross_profit'] = FD['revenue'] - costOfGoodsSold
+        data['gross_profit'] = data['revenue'] - data['costOfGoodsSold']
 
         # Investments
         quarterlyCF = cash_flow['quarterlyReports']
         investments = []
+        preferred_dividends = []
         for quarter in quarterlyCF:
-            investments.append(quarter['cashflowFromInvestment'])
-        FD['investments'] = investments
-        # Liabilities
-        FD['liabilities'] = totalLiabilities
-        # Assets
-        FD['assets'] = totalAssets
-        # Equity
-        FD['equity'] = FD['assets'] - FD['liabilities']
-        # Debt
-        FD['debt'] = currentDebt
-        # Ticker
-        FD['ticker'] = ticker
-        # Date
-        FD['date'] = dates
+            if quarter['cashflowFromInvestment'] == 'None':
+                investments.append(0)
+            else:
+                investments.append(quarter['cashflowFromInvestment'])
 
-        # Merge with fundamental ratios
-        FD['return on assets'] = ROA['ReturnOnAssets']
-        FD['debt ratio'] = DR['DebtRatio']
-        FD['current ratio'] = CR['currentRatio']
+            if quarter['dividendPayout'] == 'None':
+                preferred_dividends.append(0)
+            else:
+                preferred_dividends.append(quarter['dividendPayout'])
+
+        data['investments'] = np.array(investments, dtype='float64')
+        data['preferred_dividends'] = np.array(preferred_dividends, dtype='float64')
+        # Liabilities
+        data['totalLiabilities'] = totalLiabilities
+        # Equity - Book Value
+        data['book_value'] = data['totalAssets'] - data['totalLiabilities']
+        # Ticker
+        data['ticker'] = ticker
+        # Date
+        data['date'] = dates
+
+        # cash flow fundamental data
+        data['EPS'] = (data['netIncome'] - data['preferred_dividends']) / data['commonSharesOutstanding']
+
 
         # Remove Open, Low, Adj Close, Volume for prices dataframe
         prices = prices.drop(columns=['Open', 'High', 'Low', 'Adj Close'])
         # prices = prices.drop(columns=['Adj Close'])
         # Reindex prices so that old values are on top
-        prices = prices.reindex([18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
-        prices.reset_index(drop=True, inplace=True)
-
-        # Compute simple returns
-        prices['simple returns'] = prices['Close'].pct_change()
+        prices.sort_values(by='date', inplace=True, ascending=False)
 
         # Compute log returns
-        prices['log returns'] = np.log(prices['Close']) - np.log(prices['Close'].shift(1))
+        prices['log returns'] = np.log(prices['Close']) - np.log(prices['Close'].shift(-1))
 
         # Compute log returns trend
-        prices['log returns trend'] = prices['log returns'].apply(lambda x: 1 if x > 0 else 0)
+        #prices['log returns trend'] = prices['log returns'].apply(lambda x: 1 if x > 0 else 0)
 
         # Merge Fundamental and price data
+        FD = data
         FD.sort_values(by=['date'], inplace=True)
         FD = FD.merge(prices, how='outer', on=['date', 'ticker'])
 
-        # Merge macroeconomic variables
-        macroeconomics = pd.read_csv('macro.csv')
-        macroeconomics = macroeconomics.loc[
-            (macroeconomics['date'] >= '2016-12-31') & (macroeconomics['date'] <= '2021-10-01')]
-        macroeconomics.drop(columns='date', inplace=True)
-        macroeconomics.reset_index(inplace=True, drop=True)
-        FD = FD.join(macroeconomics)
+        if use_macros:
+            # Merge macroeconomic variables
+            macroeconomics = pd.read_csv('macro.csv')
+            macroeconomics = macroeconomics.loc[
+                (macroeconomics['date'] >= '2016-12-31') & (macroeconomics['date'] <= '2021-10-01')]
+            macroeconomics.drop(columns='date', inplace=True)
+            macroeconomics.reset_index(inplace=True, drop=True)
+            FD = FD.join(macroeconomics)
+            FD['CONSUMER_SENTIMENT'] = np.array(FD['CONSUMER_SENTIMENT'], dtype='float64')
 
-        data = data.append(FD)
+        FD.dropna(axis=0, inplace=True)
 
-    return data
+        FD['P/E ratio'] = FD['Close'] / FD['EPS']
+        FD['P/B ratio'] = FD['Close'] / (FD['book_value'] / FD['commonSharesOutstanding'])
+        FD['Net Margin'] = 100 * FD['netIncome'] / FD['revenue']
+
+        dataset = dataset.append(FD)
+
+    dataset.replace([np.inf, -np.inf], 0, inplace=True)
+    return dataset
 
 
 def hybrid_dataset_construction(regressor, X_train, X_test, X_val):

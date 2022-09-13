@@ -1,46 +1,10 @@
 hyperparameters,mse,mae,r2,huber,cosine similarity,msle,cum return
-"batch_size:60, epochs:10, loss:mse",0.0785,0.2025,-0.5511,0.0427,5.8664,0.0112,-0.1326
-"batch_size:60, epochs:10, loss:mae",0.0673,0.1905,-0.3314,0.0374,4.2622,0.0076,0.0013
-"batch_size:60, epochs:10, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.0638,0.1861,-0.2608,0.0366,4.31,0.0073,-0.0019
-"batch_size:60, epochs:10, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",15.4357,2.6787,-304.1444,2.1792,-10.8709,0.0053,-0.0258
-"batch_size:60, epochs:10, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",198.9668,7.6024,-3932.3281,7.1024,-10.8709,0.0053,-0.0002
-"batch_size:60, epochs:20, loss:mse",0.0696,0.1935,-0.3766,0.0399,4.8368,0.0083,-0.1634
-"batch_size:60, epochs:20, loss:mae",0.0723,0.2003,-0.4299,0.0417,7.9496,0.0096,-0.1616
-"batch_size:60, epochs:20, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.0686,0.1947,-0.3557,0.0387,5.8186,0.0082,-0.1631
-"batch_size:60, epochs:20, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",66.6763,5.2171,-1317.109,4.7171,-10.8709,0.0053,-0.0158
-"batch_size:60, epochs:20, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",243.7239,8.2662,-4817.121,7.7662,-10.8709,0.0053,-0.0093
-"batch_size:60, epochs:30, loss:mse",0.0697,0.1963,-0.3777,0.0394,5.8904,0.0084,-0.1353
-"batch_size:60, epochs:30, loss:mae",0.0674,0.1936,-0.3316,0.0387,5.0523,0.0083,-0.1349
-"batch_size:60, epochs:30, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.0641,0.1873,-0.2681,0.0372,4.9087,0.0073,-0.1558
-"batch_size:60, epochs:30, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",138.5263,6.6869,-2737.4947,6.1871,10.8709,3.3081,-0.0068
-"batch_size:60, epochs:30, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",335.7925,9.0261,-6637.204,8.5261,-10.8709,0.0053,-0.1555
-"batch_size:80, epochs:10, loss:mse",0.0635,0.1848,-0.2554,0.0362,3.6156,0.0071,-0.0909
-"batch_size:80, epochs:10, loss:mae",0.0734,0.1987,-0.4518,0.0403,6.1059,0.0092,-0.1586
-"batch_size:80, epochs:10, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.0683,0.1926,-0.3495,0.0388,5.7707,0.0083,-0.0732
-"batch_size:80, epochs:10, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",9.0794,1.8015,-178.4882,1.3123,-10.8709,0.0053,-0.0087
-"batch_size:80, epochs:10, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",213.5699,7.4669,-4221.0137,6.9669,-10.8709,0.0053,-0.1441
-"batch_size:80, epochs:20, loss:mse",0.0694,0.195,-0.3715,0.0403,5.196,0.0097,-0.1403
-"batch_size:80, epochs:20, loss:mae",0.073,0.2027,-0.4432,0.0418,6.8961,0.0095,-0.081
-"batch_size:80, epochs:20, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.069,0.1953,-0.3635,0.0391,5.5312,0.0083,-0.0569
-"batch_size:80, epochs:20, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",114.5681,5.2775,-2263.8708,4.7776,-10.8709,0.0053,-0.123
-"batch_size:80, epochs:20, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",185.8544,6.9935,-3673.1129,6.4935,-10.8709,0.0053,-0.01
-"batch_size:80, epochs:30, loss:mse",0.0714,0.1989,-0.4109,0.0402,6.3693,0.0086,-0.0824
-"batch_size:80, epochs:30, loss:mae",0.073,0.2033,-0.4441,0.0418,7.8299,0.0098,-0.0913
-"batch_size:80, epochs:30, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.065,0.1892,-0.2848,0.0377,5.0763,0.0076,-0.1627
-"batch_size:80, epochs:30, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",9.6976,1.6556,-190.7088,1.1899,10.8709,0.7576,-0.0065
-"batch_size:80, epochs:30, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",311.811,8.1005,-6163.12,7.6005,-10.8709,0.0053,-0.0227
-"batch_size:100, epochs:10, loss:mse",0.0721,0.1982,-0.4254,0.0406,5.7707,0.0089,-0.1316
-"batch_size:100, epochs:10, loss:mae",0.0767,0.2017,-0.5166,0.041,7.2229,0.009,-0.0031
-"batch_size:100, epochs:10, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.0687,0.1916,-0.3577,0.0379,5.8186,0.0075,-0.12
-"batch_size:100, epochs:10, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",110.1414,4.9095,-2176.3603,4.4199,-10.6075,0.0105,-0.0992
-"batch_size:100, epochs:10, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",288.7686,7.131,-5707.599,6.631,-10.8709,0.0053,-0.0141
-"batch_size:100, epochs:20, loss:mse",0.0746,0.2018,-0.475,0.0425,6.4651,0.01,-0.1441
-"batch_size:100, epochs:20, loss:mae",0.067,0.1906,-0.3254,0.0387,6.6566,0.0078,0.0023
-"batch_size:100, epochs:20, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.0661,0.1912,-0.3062,0.0383,4.9565,0.008,-0.032
-"batch_size:100, epochs:20, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",32.968,2.9846,-650.7378,2.4864,-10.8709,0.0053,-0.1507
-"batch_size:100, epochs:20, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",358.7076,9.214,-7090.2076,8.714,-10.8709,0.0053,-0.0115
-"batch_size:100, epochs:30, loss:mse",0.0679,0.1904,-0.3428,0.0385,4.9565,0.0075,-0.1326
-"batch_size:100, epochs:30, loss:mae",0.0645,0.187,-0.2752,0.0371,5.5312,0.007,-0.0693
-"batch_size:100, epochs:30, loss:<tensorflow.python.keras.losses.Huber object at 0x1535a0b80>",0.069,0.1959,-0.3642,0.0397,6.0101,0.0085,-0.0902
-"batch_size:100, epochs:30, loss:<tensorflow.python.keras.losses.CosineSimilarity object at 0x148f2d9a0>",133.2117,6.5161,-2632.4306,6.0104,-9.4581,0.418,-0.0707
-"batch_size:100, epochs:30, loss:<tensorflow.python.keras.losses.MeanSquaredLogarithmicError object at 0x1535d3940>",359.6877,8.2759,-7109.5833,7.7759,-10.8709,0.0053,-0.1351
+"batch_size:32, loss:mse",0.0692,0.1961,-0.3697,0.0293,1.1346,0.0047,0.5205
+"batch_size:32, loss:mae",0.1402,0.1819,-1.7755,0.0477,9.0645,0.0115,0.4651
+"batch_size:32, loss:<tensorflow.python.keras.losses.Huber object at 0x169a80610>",0.0598,0.1577,-0.1832,0.0328,5.7683,0.0059,0.4647
+"batch_size:64, loss:mse",35.264,2.2982,-696.8983,1.9573,2.3049,1.2492,0.5146
+"batch_size:64, loss:mae",0.1103,0.2146,-1.1822,0.04,-6.8192,0.0091,0.5677
+"batch_size:64, loss:<tensorflow.python.keras.losses.Huber object at 0x169a80610>",3.0978,1.296,-60.3079,1.0694,-0.203,0.016,0.4346
+"batch_size:128, loss:mse",23.1726,1.8712,-457.6013,1.668,-0.2986,0.0371,0.4397
+"batch_size:128, loss:mae",12.9036,0.3039,-254.3711,0.159,3.6186,0.0064,0.543
+"batch_size:128, loss:<tensorflow.python.keras.losses.Huber object at 0x169a80610>",1.1126,0.6655,-21.0188,0.323,10.0438,0.1968,0.489
