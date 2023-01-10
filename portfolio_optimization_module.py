@@ -21,20 +21,21 @@ from pypfopt import objective_functions
 from pypfopt.discrete_allocation import DiscreteAllocation
 
 
-def portfolio_optimization(backtesting_data, keep_top_k_stocks):
+def portfolio_optimization(backtesting_data, keep_top_k_stocks, validation, weights):
     unique_tickers = backtesting_data['ticker'].unique().tolist()
     unique_dates = np.sort(backtesting_data['date'].unique())
     tickers_to_delete = []
     for ticker in unique_tickers:
         inside = backtesting_data.loc[backtesting_data['ticker'] == ticker]
-        if len(inside['date']) != 6:    # !!! change to 6 for test set and 2 for validation set
+        if len(inside['date']) != (2 if validation else 6):    # !!! change to 6 for test set and 2 for validation set
             tickers_to_delete.append(ticker)
     for ticker in tickers_to_delete:
         backtesting_data.drop(backtesting_data[backtesting_data['ticker'] == ticker].index, inplace=True)
 
     unique_tickers = backtesting_data['ticker'].unique().tolist()
     for ticker in unique_tickers:
-        backtesting_data['date'].loc[backtesting_data['ticker'] == ticker] = ['2020-06-30', '2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30']
+        backtesting_data['date'].loc[backtesting_data['ticker'] == ticker] = (['2019-12-31', '2020-03-31'] if validation
+                                                                              else ['2020-06-30', '2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30'])
             #['2020-06-30', '2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30']
     # ['2019-12-31', '2020-03-31']
     expected_returns = pd.DataFrame()
@@ -53,19 +54,14 @@ def portfolio_optimization(backtesting_data, keep_top_k_stocks):
 
     individual_rets = expected_returns.mean()
 
-    num_assets = keep_top_k_stocks
-    num_portfolios = 10000
-
+    num_portfolios = weights.shape[0]
     for port in range(num_portfolios):
-        weights = np.random.random(num_assets)
-        weights /= np.sum(weights)
-        port_weights.append(weights)
-
-        returns = np.dot(weights, individual_rets)
+        port_weights.append(weights[port])
+        returns = np.dot(weights[port], individual_rets)
         port_returns.append(returns)
 
         var_matrix = expected_returns.cov()
-        var = var_matrix.mul(weights, axis=0).mul(weights, axis=1).sum().sum()
+        var = var_matrix.mul(weights[port], axis=0).mul(weights[port], axis=1).sum().sum()
         sd = np.sqrt(var)
         port_volatility.append(sd)
 
@@ -90,15 +86,19 @@ def preprocessing_historical_prices(inside_df):
     return inside_df
 
 
-def calc_portfolio_performance(optimal_weights, unique_tickers):
+def calc_portfolio_performance(optimal_weights, unique_tickers, validation):
     optimal_weights = pd.DataFrame(optimal_weights, index=unique_tickers)
     df = pd.DataFrame()
     for ticker in unique_tickers:
         inside_df = pd.read_csv(f'Price data/{ticker}.csv')
         # filter dates
-        inside_df = inside_df.loc[inside_df['Date'].isin(['2020-06-30', '2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30'])]
+        #inside_df = inside_df.loc[inside_df['Date'].isin(['2020-06-30', '2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30'])]
         # VALIDATION FILTERING
-        #inside_df = inside_df.loc[inside_df['Date'].isin(['2019-12-31', '2020-03-31'])]
+        if validation:
+            inside_df = inside_df.loc[inside_df['Date'].isin(['2019-12-31', '2020-03-31'])]
+        else:
+            inside_df = inside_df.loc[inside_df['Date'].isin(
+                ['2020-06-30', '2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30'])]
         inside_df.drop(columns='Date', inplace=True)
         df[ticker] = inside_df
 
@@ -121,10 +121,15 @@ def calc_portfolio_performance(optimal_weights, unique_tickers):
     for i in range(portfolio_returns.shape[0]):
         portfolio_returns[i] = sum(optimal_weights * total_price_returns.iloc[i, :])
 
-    portfolio_returns = pd.DataFrame(portfolio_returns, index=['2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30'])
+    if validation:
+        portfolio_returns = pd.DataFrame(portfolio_returns, index=['2020-03-31'])
+    else:
+        portfolio_returns = pd.DataFrame(portfolio_returns, index=['2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30'])
     # index=['2020-09-30', '2020-12-31', '2021-03-31', '2021-06-30', '2021-09-30']
     # ['2020-03-31']
+    print(portfolio_returns)
     cumulative_return = (portfolio_returns + 1).cumprod() - 1
+    cumulative_return.dropna(inplace=True)
     sharpe_ratio = portfolio_returns.mean() / portfolio_returns.std()
     volatility = portfolio_returns.std()
     return portfolio_returns, cumulative_return, sharpe_ratio, volatility
